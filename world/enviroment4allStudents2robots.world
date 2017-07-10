@@ -1,0 +1,11 @@
+# Including all information for the previous amount of robots robot
+
+# Including the model of the turtlebot
+include "enviroment4allStudents1robots.world"
+
+# throwing the next turtle
+turtlebot2( 	pose [ -8.0 3.0 0.000 45 ] 
+		localization_origin [ 0.000 0.000 0.000 0.000 ]
+	    	name "turtle1" 
+		color "red"
+)

@@ -1,0 +1,22 @@
+# Including the laboratory model
+include "enviroment4allStudents_light.inc"
+
+# milliseconds per update step
+interval_sim 100 
+
+# real-time milliseconds per update step
+interval_real 100 
+
+# maximum time of simulation
+quit_time 3600    # 1 hour 
+
+# Including the model of the turtlebot
+include "model/turtlebot_model.inc"
+
+# throwing the first turtle
+turtlebot2( 	
+		pose [ -6.60 2.00 0.000 45.000 ] 
+		localization_origin [ 0.000 0.000 0.000 0.000 ]
+	    	name "turtle0" 
+		color "green"
+)

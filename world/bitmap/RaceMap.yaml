@@ -1,0 +1,6 @@
+image: RaceMap.png
+resolution: 0.02    # 0.02
+origin: [-16.14, -10.22, 0.000000]    # (1614 x 1022 px) * 0.02 / 2 
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196

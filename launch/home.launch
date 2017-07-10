@@ -1,0 +1,14 @@
+<!-- Runs "NRobots" robots in the map "enviroment4allStudents" under Stage -->
+
+<launch>
+	<param name="use_sim_time" type="bool" value="true" />
+
+
+	<!-- Possible configurations -->
+	<arg name="NRobots" value="1"/> 	<!-- 1 to 8 -->
+
+
+	<!-- Stage configuration for the specified number of robots -->
+	<node pkg="stage_ros" type="stageros" name="stageros" args=" $(find task1)/world/enviroment4allStudents$(arg NRobots)robots.world"/>
+
+</launch>
