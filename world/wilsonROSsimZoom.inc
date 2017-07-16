@@ -42,8 +42,11 @@ define floorplan model
 # Define an enviroment bitmap
 floorplan
 ( 
-  	name "Race"
-  	bitmap "bitmap/RaceMap.png"
-	size [32.28 20.44 0.6]  #(1614px 1022px) * 0.02m/px [m_x m_y altitude_of_walls]
+  	#name "Race"
+  	#bitmap "bitmap/RaceMap.png"
+	#size [32.28 20.44 0.6]  #(1614px 1022px) * 0.02m/px [m_x m_y altitude_of_walls]
+	name "floor"
+	bitmap "bitmap/nes3_costmap.pgm"
+	size [37.56 21.64 0.6]
 	pose [0 0 0 0]
 )

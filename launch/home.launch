@@ -5,10 +5,10 @@
 
 
 	<!-- Possible configurations -->
-	<arg name="NRobots" value="1"/> 	<!-- 1 to 8 -->
+	<!--arg name="NRobots" value="1"/--> 	<!-- 1 to 8 -->
 
 
 	<!-- Stage configuration for the specified number of robots -->
-	<node pkg="stage_ros" type="stageros" name="stageros" args=" $(find task1)/world/enviroment4allStudents$(arg NRobots)robots.world"/>
+	<node pkg="stage_ros" type="stageros" name="stageros" args=" $(find wilson_ros)/world/wilsonROSsim1robot.world"/>
 
 </launch>

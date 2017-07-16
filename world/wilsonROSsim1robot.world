@@ -1,5 +1,5 @@
 # Including the laboratory model
-include "enviroment4allStudentsZoom.inc"
+include "wilsonROSsimZoom.inc"
 
 # milliseconds per update step
 interval_sim 100 
