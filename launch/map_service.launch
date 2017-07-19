@@ -1,0 +1,18 @@
+<!-- Informs the system about the existing map -->
+<launch>
+	<arg name="map" default="nes3_costmap"/> <!-- maze, nes3_costmap-->
+	<arg name="robot_namespace" default="robot_0" />
+
+	<!-- Waking up the specific map -->
+	<!--group ns="$(arg robot_namespace)"-->
+		<node name="map_server" pkg="map_server" type="map_server" 
+			args="$(find wilson_ros)/world/bitmap/$(arg map).yaml" respawn="true">	
+				<!-- General map parameters-->
+				<param name="frame_id" value="map" />	
+		</node>
+	<!--/group-->
+
+    <!-- Executing the map system -->
+    <!--node name="example_map" pkg="task5" type="example" output="screen"/-->
+</launch>
+

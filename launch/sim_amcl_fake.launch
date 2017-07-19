@@ -1,0 +1,23 @@
+<!-- Fakes the localization system of the robot for a simulation (releases the computational power of the system) -->
+<launch>
+	<!-- Requires a stage simulator opened-->
+	<arg name="robot_namespace" default="" />
+
+	<node name="amcl_fake" pkg="fake_localization" type="fake_localization" output="screen">	
+		<!-- Fixing a tiny problem with an offset in the simulator-->
+		
+
+		<param name="delta_x" value="+0.0"/>
+		<param name="delta_y" value="-0.0"/>
+
+		<param name="odom_frame_id" value="$(arg robot_namespace)/odom"/>
+		<param name="base_frame_id" value="$(arg robot_namespace)/base_link"/>
+		<param name="global_frame_id" value="/map"/>
+	</node>
+</launch>
+
+
+
+
+
+
