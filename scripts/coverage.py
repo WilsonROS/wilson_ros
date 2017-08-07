@@ -11,6 +11,8 @@
 from __future__ import print_function
 
 import itertools
+from threading import Lock
+
 from Queue import Queue
 from collections import namedtuple
 
@@ -27,8 +29,7 @@ try:
 except NameError:
     xrange = range
 
-t_loop = 0.5  # Time of the loop
-
+MEASUREMENT_RADIUS = 0.5
 
 class Coverage:
     def __init__(self):
@@ -38,38 +39,60 @@ class Coverage:
 
         self.map = None  # type: OccupancyGrid
         self.costmap = None  # type: List[List[int]]
-        self.pos = None  # type:Pos
+        self.dists = None  # type: List[List[int]]
+        self.pos = None  # type: Pos
+        self.map_pos = None  # type: Pos
+        self.measurements = None  # type: List[List[int]]
         self.grid = None  # type: GridCells
+
+        self._calc_lock = Lock()  # type:Lock
 
     def pos_callback(self, pose):
         """:type pose: PoseWithCovarianceStamped"""
+        if None in [self.map, self.costmap, self.measurements]:
+            return
+
         if self.pos != Pos(pose.pose.pose.position.x, pose.pose.pose.position.y):
             print("pose received")
             self.pos = Pos(pose.pose.pose.position.x, pose.pose.pose.position.y)
+
+            self.map_pos = Pos(int(round((self.pos.x - self.map.info.origin.position.x) / self.map.info.resolution)),
+                               int(round((self.pos.y - self.map.info.origin.position.y) / self.map.info.resolution)))
+
+            m = int(round(MEASUREMENT_RADIUS / self.map.info.resolution))
+            for x, y in itertools.product(xrange(self.map_pos.x - m, self.map_pos.x + m),
+                                          xrange(self.map_pos.y - m, self.map_pos.y + m)):
+                try:
+                    self.measurements[x][y] = 0
+                except IndexError:
+                    pass
+
             self.calc_grid()
 
     def map_callback(self, cb_map):
         """:type cb_map: OccupancyGrid"""
         print("map received")
         self.map = cb_map
-        self.costmap = [list(l) for l in zip(*[self.map.data[y * self.map.info.width:(y + 1) * self.map.info.width]
-                                               for y in xrange(self.map.info.height)])]
+        costmap = [list(l) for l in zip(*[self.map.data[y * self.map.info.width:(y + 1) * self.map.info.width]
+                                          for y in xrange(self.map.info.height)])]
 
-        for x in xrange(len(self.costmap)):  # type: int
-            for y in itertools.chain(xrange(len(self.costmap[x])), reversed(xrange(len(self.costmap[x])))):  # type: int
+        for x in xrange(len(costmap)):  # type: int
+            for y in itertools.chain(xrange(len(costmap[x])), reversed(xrange(len(costmap[x])))):  # type: int
                 try:
                     for i, j in itertools.product(*[[0, 1, -1]] * 2):
-                        self.costmap[x + i][y + j] = max(self.costmap[x + i][y + j], self.costmap[x][y] - 1)
+                        costmap[x + i][y + j] = max(costmap[x + i][y + j], costmap[x][y] - 1)
                 except IndexError:
                     pass
-        for y in xrange(len(self.costmap[0])):  # type: int
-            for x in itertools.chain(xrange(len(self.costmap)), reversed(xrange(len(self.costmap)))):  # type: int
+        for y in xrange(len(costmap[0])):  # type: int
+            for x in itertools.chain(xrange(len(costmap)), reversed(xrange(len(costmap)))):  # type: int
                 try:
                     for i, j in itertools.product(*[[0, 1, -1]] * 2):
-                        self.costmap[x + i][y + j] = max(self.costmap[x + i][y + j], self.costmap[x][y] - 1)
+                        costmap[x + i][y + j] = max(costmap[x + i][y + j], costmap[x][y] - 1)
                 except IndexError:
                     pass
 
+        self.costmap = costmap
+        self.measurements = [[-1] * self.map.info.height for _ in xrange(self.map.info.width)]
         self.calc_grid()
 
     def send(self):
@@ -78,20 +101,37 @@ class Coverage:
             self.coverage_pub.publish(self.grid)
 
     def calc_grid(self):
-        if self.pos is None or self.map is None or self.costmap is None or len(self.map.data) <= 0:
+        if None in [self.pos, self.map_pos, self.map, self.costmap, self.measurements] or len(self.map.data) <= 0:
             return
 
-        map_pos = Pos(int(round((self.pos.x - self.map.info.origin.position.x) / self.map.info.resolution)),
-                      int(round((self.pos.y - self.map.info.origin.position.y) / self.map.info.resolution)))
-
-        if self.costmap[map_pos.x][map_pos.y] >= 100:
+        if self.costmap[self.map_pos.x][self.map_pos.y] >= 100:
             print("position in wall")
             return
 
+        if not self._calc_lock.acquire(False):
+            return
+
+        if self.dists is None or self.dists[self.map_pos.x][self.map_pos.y] <= -1:
+            self.calc_dists()
+
+        grid = GridCells()
+        grid.header.stamp = rospy.Time.now()
+        grid.header.frame_id = '/map'
+        grid.cell_width = grid.cell_height = self.map.info.resolution
+        grid.cells = list(Point(x * self.map.info.resolution + self.map.info.origin.position.x,
+                                y * self.map.info.resolution + self.map.info.origin.position.y, 0)
+                          for x, y in itertools.product(xrange(len(self.costmap)), xrange(len(self.costmap[0])))
+                          if self.dists[x][y] > -1 and self.measurements[x][y] <= -1)
+        self.grid = grid
+
+        self._calc_lock.release()
+        self.send()
+
+    def calc_dists(self):
         wave = Queue()
-        wave.put(map_pos)
+        wave.put(self.map_pos)
         dist = [[-1] * self.map.info.height for _ in xrange(self.map.info.width)]
-        dist[map_pos.x][map_pos.y] = 0
+        dist[self.map_pos.x][self.map_pos.y] = 0
         while not wave.empty():
             p = wave.get()  # pos
             for n in (Pos(p.x + x, p.y + y) for x, y in [[1, 0], [0, 1], [-1, 0], [0, -1]]):  # neighbors
@@ -101,25 +141,15 @@ class Coverage:
                     continue
                 dist[n.x][n.y] = dist[p.x][p.y] + 1
                 wave.put(n)
-
-        grid = GridCells()
-        grid.header.stamp = rospy.Time.now()
-        grid.header.frame_id = '/map'
-        grid.cell_width = grid.cell_height = self.map.info.resolution
-        grid.cells = list(Point(x * self.map.info.resolution + self.map.info.origin.position.x,
-                                y * self.map.info.resolution + self.map.info.origin.position.y, 0)
-                          for x, y in itertools.product(xrange(len(self.costmap)), xrange(len(self.costmap[0])))
-                          if dist[x][y] > -1)
-        self.grid = grid
+        self.dists = dist
 
 
 def main_loop():
     global t_loop
 
     cov = Coverage()
-    rate = rospy.Rate(int(round(1.0 / t_loop)))
+    rate = rospy.Rate(1)
     while not rospy.is_shutdown():
-        cov.send()
         rate.sleep()
 
 
