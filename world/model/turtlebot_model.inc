@@ -4,8 +4,8 @@
 define utm_30lx_ranger ranger(
 	sensor(
 		range [0.1 30.0]
-		fov 270.0 	# Field of view
-		samples 270	# Step angle 0.25º (should be 1080)
+		fov 360.0 	# Field of view
+		samples 1000	# Step angle 0.25º (should be 1080)
 		color "green"
 	)
 )
