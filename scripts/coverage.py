@@ -29,7 +29,9 @@ try:
 except NameError:
     xrange = range
 
+WALL_DISTANCE = 100 - 5
 MEASUREMENT_RADIUS = 0.5
+
 
 class Coverage:
     def __init__(self):
@@ -135,9 +137,12 @@ class Coverage:
         while not wave.empty():
             p = wave.get()  # pos
             for n in (Pos(p.x + x, p.y + y) for x, y in [[1, 0], [0, 1], [-1, 0], [0, -1]]):  # neighbors
-                if n.x < 0 or n.y < 0 or n.x >= len(self.costmap) or n.y >= len(self.costmap[n.x]):
-                    continue
-                if self.costmap[n.x][n.y] >= 95 or dist[n.x][n.y] != -1:
+                try:
+                    if dist[n.x][n.y] != -1:
+                        continue  # already visited
+                    if self.costmap[n.x][n.y] >= self.costmap[p.x][p.y] and self.costmap[n.x][n.y] >= WALL_DISTANCE:
+                        continue  # ignore some distance to wall except if robot is at wall
+                except IndexError:
                     continue
                 dist[n.x][n.y] = dist[p.x][p.y] + 1
                 wave.put(n)
