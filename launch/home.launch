@@ -13,7 +13,9 @@
 
 	<!-- Stage configuration for the specified number of robots -->
 	<node pkg="stage_ros" type="stageros" name="stageros" args=" $(find wilson_ros)/world/wilsonROSsim1robot.world"/>
-	<node pkg="move_base" type="move_base" name="move_base" output="screen" />
-	<node pkg="wilson_ros" type="planner.py" name="planner" output="screen"/>
+
+  <include file="$(find wilson_ros)/launch/coverage.launch"/>
+  <include file="$(find wilson_ros)/launch/zone_generator.launch"/>
+  <include file="$(find wilson_ros)/launch/planner.launch"/>
 
 </launch>

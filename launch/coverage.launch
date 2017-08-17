@@ -1,0 +1,3 @@
+<launch>
+	<node pkg="wilson_ros" type="coverage.py" name="coverage" output="screen"/>
+</launch>

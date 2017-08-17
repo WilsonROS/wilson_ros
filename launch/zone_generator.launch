@@ -1,5 +1,3 @@
-<!-- Runs a robot in the map "wilsonROSsim1robot" under Stage and publishes map-->
-
 <launch>
     <node pkg="wilson_ros" type="zone_generator" name="ZoneGenerator" output="screen"/>
 </launch>
