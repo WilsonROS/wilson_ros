@@ -1,4 +1,3 @@
 <launch>
-	<node pkg="move_base" type="move_base" name="move_base" output="screen" />
 	<node pkg="wilson_ros" type="planner.py" name="planner" output="screen" />
 </launch>
