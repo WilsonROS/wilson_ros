@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(wilson_ros)
+project(wilson_ros CXX)
 
 ## Add support for C++11, supported in ROS Kinetic and newer
 add_compile_options(-std=c++11)
@@ -10,6 +10,10 @@ add_compile_options(-std=c++11)
 find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   message_runtime
+  nav_msgs
+  nodelet
+  openslam_gmapping
+  rosbag_storage
   roscpp
   std_msgs
   tf
@@ -72,6 +76,9 @@ add_message_files(
 #   Action2.action
 # )
 
+# Necessary in order for gmapping to work
+find_package(Boost REQUIRED signals)
+
 ## Generate added messages and services with any dependencies listed here
  generate_messages(
    DEPENDENCIES
@@ -130,8 +137,25 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
-include_directories( include
+# Boost is required for gmapping
+include_directories(
+  include
+  ${Boost_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
+)
+
+include_directories(src/gmapping)
+
+add_executable(slam_gmapping src/gmapping/slam_gmapping.cpp src/gmapping/main.cpp)
+target_link_libraries(slam_gmapping ${Boost_LIBRARIES} ${catkin_LIBRARIES})
+if(catkin_EXPORTED_TARGETS)
+  add_dependencies(slam_gmapping ${catkin_EXPORTED_TARGETS})
+endif()
+
+install(TARGETS slam_gmapping #slam_gmapping_replay
+  ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 
 ## Declare a C++ library
@@ -220,12 +244,3 @@ target_link_libraries(zone_generator ${catkin_LIBRARIES})
 #############
 ## Testing ##
 #############
-
-## Add gtest based cpp test target and link libraries
-# catkin_add_gtest(${PROJECT_NAME}-test test/test_wilson_ros.cpp)
-# if(TARGET ${PROJECT_NAME}-test)
-#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
-# endif()
-
-## Add folders to be run by python nosetests
-# catkin_add_nosetests(test)
