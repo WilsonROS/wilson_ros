@@ -45,6 +45,8 @@ public:
 
     void setNeighbourLeft(GridCell *neighbourLeft);
 
+    bool cellContains(geometry_msgs::Point p);
+
 private:
 
     double cellHeight;
@@ -70,8 +72,6 @@ private:
     GridCell *neighbourBootom;
 
     GridCell *neighbourLeft;
-
-    bool cellContains(geometry_msgs::Point p);
 };
 
 

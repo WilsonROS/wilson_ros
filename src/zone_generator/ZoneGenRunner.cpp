@@ -42,7 +42,7 @@ void ZoneGenRunner::callbackGrid(const nav_msgs::GridCells &msg) {
         upperBoundPositions.header = msg.header;
         navigationDataMsg.header = msg.header;
         for (int i = 0; i < zones.size(); i++) {
-            GridCell * zone = &zones[i];
+            GridCell *zone = &zones[i];
 
             geometry_msgs::Pose centerPose;
             geometry_msgs::Pose bestMatchPose;
@@ -79,8 +79,8 @@ void ZoneGenRunner::callbackGrid(const nav_msgs::GridCells &msg) {
             //find matching zonezone->getCenterOriginal()
             for (unsigned long j = 0; j < zones.size(); j++) {
                 GridCell *zone = &zones[j];
-                geometry_msgs::Point zoneCenter = zone->getCenterOriginal();
-                if (zoneCenter.x == cellCenter.x && zoneCenter.y == cellCenter.y) {
+
+                if (zone->cellContains(cellCenter)) {
                     geometry_msgs::Pose target_pose;
                     target_pose.position = cell->getCenterBestMatch();
                     navigationDataMsg.zones[j].target_poses.push_back(target_pose);
@@ -92,6 +92,9 @@ void ZoneGenRunner::callbackGrid(const nav_msgs::GridCells &msg) {
                 }
             }
         }
+        ROS_INFO_STREAM("count zones: " << zones.size() << " - cells in first zone: "
+                                        << navigationDataMsg.zones[0].target_poses.size() << " / "
+                                        << navigationDataMsg.zones[0].center_poses.size());
         pubNavigationData.publish(navigationDataMsg);
     }
 }
