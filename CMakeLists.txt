@@ -13,8 +13,12 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   tf
+<<<<<<< Updated upstream
   rqt_smach
   smach_viewer
+=======
+  message_generation
+>>>>>>> Stashed changes
 )
 
 ## System dependencies are found with CMake's conventions
@@ -51,11 +55,11 @@ find_package(catkin REQUIRED COMPONENTS
 ##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
 
 ## Generate messages in the 'msg' folder
-# add_message_files(
-#   FILES
-#   Message1.msg
-#   Message2.msg
-# )
+add_message_files(
+   FILES
+   Zone.msg
+   NavigationData.msg
+)
 
 ## Generate services in the 'srv' folder
 # add_service_files(
@@ -75,7 +79,7 @@ find_package(catkin REQUIRED COMPONENTS
  generate_messages(
    DEPENDENCIES
    geometry_msgs
-	std_msgs
+   std_msgs
  )
 
 ################################################
@@ -107,15 +111,19 @@ find_package(catkin REQUIRED COMPONENTS
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
+#catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES wilson_ros
 #  CATKIN_DEPENDS geometry_msgs map_server ros_stage roscpp rospy std_msgs tf
 #  DEPENDS system_lib
-)
+#)
 catkin_package(
-#    INCLUDE_DIRS include
-    DEPENDS roscpp std_msgs geometry_msgs
+    INCLUDE_DIRS include
+    CATKIN_DEPENDS
+        roscpp
+        std_msgs
+        geometry_msgs
+        message_runtime
 )
 
 ###########
@@ -125,7 +133,7 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 # include_directories(include)
-include_directories(
+include_directories( include
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -158,6 +166,24 @@ include_directories(
 # target_link_libraries(${PROJECT_NAME}_node
 #   ${catkin_LIBRARIES}
 # )
+
+##############################################
+##  			Zone-Generator				##
+##############################################
+
+## Declare a cpp executable
+add_executable(
+        zone_generator
+        src/zone_generator/main.cpp
+        src/zone_generator/ZoneGenerator.cpp
+        src/zone_generator/ZoneGenRunner.cpp
+        include/wilson_ros/ZoneGenRunner.hpp
+        src/grid_reassigner/GridReAssigner.cpp
+        include/wilson_ros/grid_reassigner/GridReAssigner.hpp src/grid_reassigner/GridCell.cpp include/wilson_ros/grid_reassigner/GridCell.hpp)
+
+## Specify libraries to link a library or executable target against
+target_link_libraries(zone_generator ${catkin_LIBRARIES})
+
 
 #############
 ## Install ##
