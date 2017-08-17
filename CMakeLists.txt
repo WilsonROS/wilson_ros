@@ -13,12 +13,9 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   tf
-<<<<<<< Updated upstream
   rqt_smach
   smach_viewer
-=======
   message_generation
->>>>>>> Stashed changes
 )
 
 ## System dependencies are found with CMake's conventions
