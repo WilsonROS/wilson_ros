@@ -45,9 +45,13 @@ void ZoneGenRunner::callbackGrid(const nav_msgs::GridCells &msg) {
             GridCell *zone = &zones[i];
 
             geometry_msgs::Pose centerPose;
+            centerPose.orientation.w = 1;
             geometry_msgs::Pose bestMatchPose;
+            bestMatchPose.orientation.w = 1;
             geometry_msgs::Pose lowerBoundPose;
+            lowerBoundPose.orientation.w = 1;
             geometry_msgs::Pose upperBoundPose;
+            upperBoundPose.orientation.w = 1;
 
             centerPose.position = zone->getCenterOriginal();
             bestMatchPose.position = zone->getCenterBestMatch();
@@ -82,10 +86,12 @@ void ZoneGenRunner::callbackGrid(const nav_msgs::GridCells &msg) {
 
                 if (zone->cellContains(cellCenter)) {
                     geometry_msgs::Pose target_pose;
+                    target_pose.orientation.w = 1;
                     target_pose.position = cell->getCenterBestMatch();
                     navigationDataMsg.zones[j].target_poses.push_back(target_pose);
 
                     geometry_msgs::Pose center_pose;
+                    center_pose.orientation.w = 1;
                     center_pose.position = cellCenter;;
                     navigationDataMsg.zones[j].center_poses.push_back(center_pose);
                     break;
