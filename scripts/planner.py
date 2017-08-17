@@ -16,10 +16,20 @@ from actionlib.simple_action_client import SimpleActionClient, GoalStatus
 from geometry_msgs.msg import Pose
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
+from wilson_ros.msg import NavigationData, Zone
+
 class WaitForZone(smach.State):
+    raw_zones = []
+
     def __init__(self, zones):
         smach.State.__init__(self, outcomes=['waiting_for_zone','got_zone'])
         self.zones = zones
+        self.sub = rospy.Subscriber('navigation_data', NavigationData, self.UpdateZones, queue_size = 10) 
+    
+    def UpdateZones(self, msg):
+        self.raw_zones = msg.zones
+        str(msg.zones)
+        return
 
     def execute(self, userdata):
         rospy.loginfo('Executing state WaitForZone')
@@ -27,11 +37,11 @@ class WaitForZone(smach.State):
             pprint(self.zones);
             return 'got_zone'
         else:
-            # TODO: Load current zones
-            self.zones.append(collections.deque([Pose(), Pose(), Pose(), Pose(), Pose()]))
-            self.zones.append(collections.deque([Pose(), Pose(), Pose(), Pose(), Pose()]))
-            self.zones.append(collections.deque([Pose(), Pose(), Pose(), Pose(), Pose()]))
-            rospy.loginfo('update Data');
+            # Load current zones
+            rospy.loginfo('Update Data');
+            for _, raw_zone in enumerate(self.raw_zones):
+                if len(raw_zone.target_poses) > 0:
+                    self.zones.append(collections.deque([raw_zone.target_poses]))
             return 'waiting_for_zone'
 
 class GotZone(smach.State):
