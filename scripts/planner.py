@@ -13,7 +13,7 @@ from random import getrandbits
 from pprint import pprint
 
 from actionlib.simple_action_client import SimpleActionClient, GoalStatus
-from geometry_msgs.msg import Pose
+from geometry_msgs.msg import Pose, Point, Quaternion
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 
 from wilson_ros.msg import NavigationData, Zone
@@ -24,11 +24,10 @@ class WaitForZone(smach.State):
     def __init__(self, zones):
         smach.State.__init__(self, outcomes=['waiting_for_zone','got_zone'])
         self.zones = zones
-        self.sub = rospy.Subscriber('navigation_data', NavigationData, self.UpdateZones, queue_size = 10) 
+        self.sub = rospy.Subscriber('navigation_data', NavigationData, self.updateZones, queue_size = 10) 
     
-    def UpdateZones(self, msg):
+    def updateZones(self, msg):
         self.raw_zones = msg.zones
-        str(msg.zones)
         return
 
     def execute(self, userdata):
@@ -41,8 +40,26 @@ class WaitForZone(smach.State):
             rospy.loginfo('Update Data');
             for _, raw_zone in enumerate(self.raw_zones):
                 if len(raw_zone.target_poses) > 0:
-                    self.zones.append(collections.deque([raw_zone.target_poses]))
+                    self.zones.append(self.convert(raw_zone.target_poses))
             return 'waiting_for_zone'
+    
+    def convert(self, target_poses):
+        poses = collections.deque([])
+        for _, raw_pose in enumerate(target_poses):
+            pose = Pose()
+            pose.position = Point(
+                    raw_pose.position.x,
+                    raw_pose.position.y,
+                    raw_pose.position.z
+                    )
+            pose.orientation = Quaternion(
+                    raw_pose.orientation.x,
+                    raw_pose.orientation.y,
+                    raw_pose.orientation.z,
+                    raw_pose.orientation.w
+                    )
+            poses.append(pose)
+        return poses
 
 class GotZone(smach.State):
     def __init__(self, zones):
