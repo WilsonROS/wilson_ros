@@ -80,15 +80,22 @@ class GotWaypoint(smach.State):
         self.zones = zones
         self.client = client
         self.succeeded = False
+        self.counter = 0
+        self.limit = 60
 
     def execute(self, userdata):
         rospy.loginfo('Executing state GotWaypoint')
-        if self.succeeded == False and self.client.get_state() == GoalStatus.SUCCEEDED:
+        rospy.loginfo(str(self.client.get_state()))
+        if self.counter > self.limit or (self.succeeded == False and (self.client.get_state() not in (GoalStatus.PENDING, GoalStatus.ACTIVE))):
             # Remove waypoint
-            rospy.loginfo("SUCEEDED")
+            if self.client.get_state() == GoalStatus.SUCCEEDED:
+                rospy.loginfo("SUCEEDED")
+            else:
+                rospy.loginfo("Remove unsuceeded waypoint with goal status: " + str(self.client.get_state()))
             pprint(self.zones[0][0])
             self.zones[0].popleft()
             self.succeeded = True
+            self.counter = 0
             return 'at_waypoint'
         else:
             rospy.loginfo('not at current waypoint, send move command and wait')
@@ -101,6 +108,7 @@ class GotWaypoint(smach.State):
             rospy.loginfo("Move to: " + str(pose))
             self.client.send_goal(goal)
             sleep(1)
+            self.counter += 1
             self.succeeded = False
             return 'move_to_waypoint'
 
