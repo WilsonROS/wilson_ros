@@ -33,7 +33,6 @@ class WaitForZone(smach.State):
     def execute(self, userdata):
         rospy.loginfo('Executing state WaitForZone')
         if len(self.zones) > 0:
-            pprint(self.zones);
             return 'got_zone'
         else:
             # Load current zones
@@ -73,7 +72,6 @@ class GotZone(smach.State):
         else:
             rospy.loginfo('zone empty, proceed with next zone')
             self.zones.popleft();
-            pprint(self.zones);
             return 'zone_empty'
 
 class GotWaypoint(smach.State):
@@ -81,13 +79,16 @@ class GotWaypoint(smach.State):
         smach.State.__init__(self, outcomes=['move_to_waypoint', 'at_waypoint'])
         self.zones = zones
         self.client = client
+        self.succeeded = False
 
     def execute(self, userdata):
         rospy.loginfo('Executing state GotWaypoint')
-        if self.client.get_state() == GoalStatus.SUCCEEDED:
+        if self.succeeded == False and self.client.get_state() == GoalStatus.SUCCEEDED:
             # Remove waypoint
+            rospy.loginfo("SUCEEDED")
+            pprint(self.zones[0][0])
             self.zones[0].popleft()
-            pprint(self.zones);
+            self.succeeded = True
             return 'at_waypoint'
         else:
             rospy.loginfo('not at current waypoint, send move command and wait')
@@ -100,6 +101,7 @@ class GotWaypoint(smach.State):
             rospy.loginfo("Move to: " + str(pose))
             self.client.send_goal(goal)
             sleep(1)
+            self.succeeded = False
             return 'move_to_waypoint'
 
 class Planer:
