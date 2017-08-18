@@ -3,8 +3,8 @@
 <launch>
 	<param name="use_sim_time" type="bool" value="true" />
 
-    <include file="$(find wilson_ros)/launch/sim_amcl_fake.launch"/>
-    <!--include file="$(find wilson_ros)/launch/amcl.launch"/-->
+    <!--include file="$(find wilson_ros)/launch/sim_amcl_fake.launch"/-->
+    <include file="$(find wilson_ros)/launch/amcl.launch"/>
 
     <include file="$(find wilson_ros)/launch/map_service.launch"/>
 
