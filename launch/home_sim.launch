@@ -1,0 +1,19 @@
+<!-- Runs a robot in the map "wilsonROSsim1robot" under Stage and publishes map-->
+
+<launch>
+	<param name="use_sim_time" type="bool" value="true" />
+
+    <include file="$(find wilson_ros)/launch/sim_amcl_fake.launch"/>
+
+    <include file="$(find wilson_ros)/launch/map_service.launch"/>
+
+	<!-- Possible configurations -->
+	<!--arg name="NRobots" value="1"/--> 	<!-- 1 to 8 -->
+
+
+	<!-- Stage configuration for the specified number of robots -->
+	<node pkg="stage_ros" type="stageros" name="stageros" args=" $(find wilson_ros)/world/wilsonROSsim1robot.world"/>
+
+    <include file="$(find wilson_ros)/launch/navigation_sim.launch"/>
+    <include file="$(find wilson_ros)/launch/coverage.launch"/>
+</launch>
