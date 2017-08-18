@@ -4,6 +4,7 @@
 	<param name="use_sim_time" type="bool" value="true" />
 
     <include file="$(find wilson_ros)/launch/sim_amcl_fake.launch"/>
+    <!--include file="$(find wilson_ros)/launch/amcl.launch"/-->
 
     <include file="$(find wilson_ros)/launch/map_service.launch"/>
 
@@ -13,5 +14,7 @@
 
 	<!-- Stage configuration for the specified number of robots -->
 	<node pkg="stage_ros" type="stageros" name="stageros" args=" $(find wilson_ros)/world/wilsonROSsim1robot.world"/>
+
+    <node pkg="rviz" type="rviz" name="rviz"/>
 
 </launch>
