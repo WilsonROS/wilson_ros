@@ -3,7 +3,7 @@
 //
 
 #include <ros/ros.h>
-#include "wilson_ros/grid_reassigner/GridCell.hpp"
+#include "wilson_ros/cell_grid_creator/GridCell.hpp"
 
 GridCell::GridCell(const geometry_msgs::Point &centerOriginal, double cellHeight, double cellWidth,
                    double paddingHeight, double paddingWidth, GridCell *bottom,

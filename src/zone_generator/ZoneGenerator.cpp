@@ -64,16 +64,13 @@ void ZoneGenerator::prepareZoneNavigationData(std::vector<GridCell> zones) {
 
         // prepare zone-data
         wilson_ros::Zone zoneMsg;
-        zoneMsg.target_pose.position = zoneBestMatchPose;
-        zoneMsg.center_pose.position = zone->getCenterOriginal();
+        zoneMsg.target_pose = zoneBestMatchPose;
+        zoneMsg.center_pose = createPose(zone->getCenterOriginal());
         navigationData.zones.push_back(zoneMsg);
     }
 }
 
 void ZoneGenerator::finalizeNavigationData(std::vector<GridCell> zones, std::vector<GridCell> measurementGridCells) {
-    double minX = zones[0].getLowerBound().x;
-    double minY = zones[0].getLowerBound().y;
-
     unsigned long measurementCount = measurementGridCells.size();
     for (unsigned long i = 0; i < measurementCount; i++) {
         GridCell *measurementCell = &measurementGridCells[i];
