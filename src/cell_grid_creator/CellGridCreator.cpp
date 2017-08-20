@@ -2,15 +2,14 @@
 // Created by aluquot on 16.08.17.
 //
 
-#include "../../include/wilson_ros/grid_reassigner/GridReAssigner.hpp"
-#include "wilson_ros/grid_reassigner/GridCell.hpp"
+#include "wilson_ros/cell_grid_creator/CellGridCreator.hpp"
 
-GridReAssigner::GridReAssigner(unsigned int cellHeight, unsigned int cellWidth) {
+CellGridCreator::CellGridCreator(unsigned int cellHeight, unsigned int cellWidth) {
     this->cellHeight = cellHeight;
     this->cellWidth = cellWidth;
 }
 
-std::vector<GridCell> GridReAssigner::reassignGrid(double originCellHeight, double originCellWith, std::vector<geometry_msgs::Point> cells) {
+std::vector<GridCell> CellGridCreator::reassignGrid(double originCellHeight, double originCellWith, std::vector<geometry_msgs::Point> cells) {
     // early return if cell-sizes do not match
     double quotientHeight = cellHeight / originCellHeight;
     double quotientWidth = cellWidth / originCellWith;

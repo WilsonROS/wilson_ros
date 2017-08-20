@@ -199,8 +199,8 @@ add_executable(
         src/zone_generator/ZoneGenerator.cpp
         src/zone_generator/ZoneGenerator.cpp
         include/wilson_ros/zone_generator/ZoneGenerator.hpp
-        src/grid_reassigner/GridReAssigner.cpp
-        include/wilson_ros/grid_reassigner/GridReAssigner.hpp src/grid_reassigner/GridCell.cpp include/wilson_ros/grid_reassigner/GridCell.hpp)
+        src/cell_grid_creator/CellGridCreator.cpp
+        include/wilson_ros/cell_grid_creator/CellGridCreator.hpp src/cell_grid_creator/GridCell.cpp include/wilson_ros/cell_grid_creator/GridCell.hpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(zone_generator ${catkin_LIBRARIES})

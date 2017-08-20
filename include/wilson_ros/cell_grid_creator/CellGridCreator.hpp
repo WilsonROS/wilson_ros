@@ -9,9 +9,9 @@
 #include <geometry_msgs/Point.h>
 #include "GridCell.hpp"
 
-class GridReAssigner {
+class CellGridCreator {
 public:
-    GridReAssigner(unsigned int cellHeight, unsigned int cellWidth);
+    CellGridCreator(unsigned int cellHeight, unsigned int cellWidth);
 
     std::vector<GridCell> reassignGrid(double originCellHeight, double originCellWith, std::vector<geometry_msgs::Point> cells);
 
