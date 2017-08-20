@@ -9,8 +9,8 @@
 
 class GridCell {
 public:
-    GridCell(const geometry_msgs::Point &centerOriginal, double cellHeight, double cellWidth, double paddingHeight,
-             double paddingWidth, GridCell *bottom, GridCell *left);
+    GridCell(const geometry_msgs::Point &centerOriginal, double cellHeight, double cellWidth,
+                 GridCell *bottom, GridCell *left);
 
     void setNeighbours(GridCell *top, GridCell *right, GridCell *bottom, GridCell *left);
 

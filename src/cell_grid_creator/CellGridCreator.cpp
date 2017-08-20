@@ -55,7 +55,7 @@ std::vector<GridCell> CellGridCreator::createGrid(double originCellHeight, doubl
 
             GridCell *left = (i == 0) ? nullptr : &newCells[i - 1][j];
             GridCell *bottom = (j == 0) ? nullptr : &newCells[i][j - 1];
-            GridCell newCell = GridCell(center, cellHeight, cellWidth, paddingHeight, paddingWidth, bottom, left);
+            GridCell newCell = GridCell(center, cellHeight, cellWidth, bottom, left);
 
             if (left != nullptr) {
                 left->setNeighbourRight(&newCell);

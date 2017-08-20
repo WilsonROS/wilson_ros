@@ -6,8 +6,7 @@
 #include "wilson_ros/cell_grid_creator/GridCell.hpp"
 
 GridCell::GridCell(const geometry_msgs::Point &centerOriginal, double cellHeight, double cellWidth,
-                   double paddingHeight, double paddingWidth, GridCell *bottom,
-                   GridCell *left)
+                   GridCell *bottom, GridCell *left)
         : centerOriginal(centerOriginal) {
     this->cellHeight = cellHeight;
     this->cellWidth = cellWidth;
@@ -24,10 +23,10 @@ GridCell::GridCell(const geometry_msgs::Point &centerOriginal, double cellHeight
 
     double differenceX = cellWidth / 2;
     double differenceY = cellHeight / 2;
-    this->upperBound.x = centerOriginal.x + differenceX - paddingWidth;
-    this->upperBound.y = centerOriginal.y + differenceY - paddingHeight;
-    this->lowerBound.x = centerOriginal.x - differenceX + paddingWidth;
-    this->lowerBound.y = centerOriginal.y - differenceY + paddingHeight;
+    this->upperBound.x = centerOriginal.x + differenceX;
+    this->upperBound.y = centerOriginal.y + differenceY;
+    this->lowerBound.x = centerOriginal.x - differenceX;
+    this->lowerBound.y = centerOriginal.y - differenceY;
 }
 
 void GridCell::activateWith(geometry_msgs::Point p) {
