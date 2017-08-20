@@ -10,7 +10,7 @@ GridCell::GridCell(const geometry_msgs::Point &centerOriginal, double cellHeight
         : centerOriginal(centerOriginal) {
     this->cellHeight = cellHeight;
     this->cellWidth = cellWidth;
-    this->neighbourBootom = bottom;
+    this->neighbourBottom = bottom;
     this->neighbourLeft = left;
 
     this->centerBestMatch = centerOriginal;
@@ -46,7 +46,7 @@ void GridCell::activateWith(geometry_msgs::Point p) {
 void GridCell::setNeighbours(GridCell *top, GridCell *right, GridCell *bottom, GridCell *left) {
     this->neighbourTop = top;
     this->neighbourRight = right;
-    this->neighbourBootom = bottom;
+    this->neighbourBottom = bottom;
     this->neighbourLeft = left;
 }
 
@@ -83,8 +83,8 @@ GridCell *GridCell::getNeigbourRight() const {
     return neighbourRight;
 }
 
-GridCell *GridCell::getNeigbourBootom() const {
-    return neighbourBootom;
+GridCell *GridCell::getNeigbourBottom() const {
+    return neighbourBottom;
 }
 
 GridCell *GridCell::getNeigbourLeft() const {
@@ -99,8 +99,8 @@ void GridCell::setNeighbourRight(GridCell *neighbourRight) {
     GridCell::neighbourRight = neighbourRight;
 }
 
-void GridCell::setNeighbourBootom(GridCell *neighbourBootom) {
-    GridCell::neighbourBootom = neighbourBootom;
+void GridCell::setNeighbourBottom(GridCell *neighbourBottom) {
+    GridCell::neighbourBottom = neighbourBottom;
 }
 
 void GridCell::setNeighbourLeft(GridCell *neighbourLeft) {
