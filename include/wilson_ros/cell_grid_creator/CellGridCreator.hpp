@@ -13,7 +13,8 @@ class CellGridCreator {
 public:
     CellGridCreator(unsigned int cellHeight, unsigned int cellWidth);
 
-    std::vector<GridCell> reassignGrid(double originCellHeight, double originCellWith, std::vector<geometry_msgs::Point> cells);
+    std::vector<GridCell> createGrid(double originCellHeight, double originCellWith,
+                                     std::vector<geometry_msgs::Point> cells);
 
 private:
     unsigned int cellHeight;

@@ -33,7 +33,7 @@ ZoneGenerator::createMeasurementCellGrid(unsigned int cellHeight, unsigned int c
                                          nav_msgs::GridCells msg) {
     CellGridCreator cellGridCreator(cellHeight, cellWidth);
 
-    return cellGridCreator.reassignGrid(msg.cell_height, msg.cell_width, msg.cells);
+    return cellGridCreator.createGrid(msg.cell_height, msg.cell_width, msg.cells);
 }
 
 std::vector<GridCell> ZoneGenerator::createZoneGrid(unsigned int zoneHeight, unsigned int zoneWidth, double cellHeight,
@@ -51,7 +51,7 @@ std::vector<GridCell> ZoneGenerator::createZoneGrid(unsigned int zoneHeight, uns
         zoneBestMatch.poses.push_back(cellBestMatchPose);
     }
 
-    return zoneCreator.reassignGrid(cellHeight, cellWidth, relevantCellPoints);
+    return zoneCreator.createGrid(cellHeight, cellWidth, relevantCellPoints);
 }
 
 void ZoneGenerator::prepareZoneNavigationData(std::vector<GridCell> zones) {

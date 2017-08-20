@@ -9,7 +9,8 @@ CellGridCreator::CellGridCreator(unsigned int cellHeight, unsigned int cellWidth
     this->cellWidth = cellWidth;
 }
 
-std::vector<GridCell> CellGridCreator::reassignGrid(double originCellHeight, double originCellWith, std::vector<geometry_msgs::Point> cells) {
+std::vector<GridCell> CellGridCreator::createGrid(double originCellHeight, double originCellWith,
+                                                  std::vector <geometry_msgs::Point> cells) {
     // early return if cell-sizes do not match
     double quotientHeight = cellHeight / originCellHeight;
     double quotientWidth = cellWidth / originCellWith;
