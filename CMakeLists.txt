@@ -197,8 +197,8 @@ add_executable(
         zone_generator
         src/zone_generator/main.cpp
         src/zone_generator/ZoneGenerator.cpp
-        src/zone_generator/ZoneGenRunner.cpp
-        include/wilson_ros/zone_generator/ZoneGenRunner.hpp
+        src/zone_generator/ZoneGenerator.cpp
+        include/wilson_ros/zone_generator/ZoneGenerator.hpp
         src/grid_reassigner/GridReAssigner.cpp
         include/wilson_ros/grid_reassigner/GridReAssigner.hpp src/grid_reassigner/GridCell.cpp include/wilson_ros/grid_reassigner/GridCell.hpp)
 
