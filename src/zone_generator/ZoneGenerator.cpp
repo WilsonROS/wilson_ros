@@ -2,103 +2,122 @@
 // Created by aluquot on 14.08.17.
 //
 
-#include <wilson_ros/grid_reassigner/GridReAssigner.hpp>
+#include <wilson_ros/cell_grid_creator/CellGridCreator.hpp>
 #include "wilson_ros/zone_generator/ZoneGenerator.hpp"
 
 ZoneGenerator::ZoneGenerator() {
     sub = nh.subscribe("/cells", 10, &ZoneGenerator::generateZones, this);
-    pubZoneCenter = nh.advertise<geometry_msgs::PoseArray>("/zone_centers", 100);
+    pubCellBestMatch = nh.advertise<geometry_msgs::PoseArray>("/cell_best_match", 100);
     pubZoneBestMatch = nh.advertise<geometry_msgs::PoseArray>("/zone_best_match", 100);
-    pubZoneLowerBound = nh.advertise<geometry_msgs::PoseArray>("/zone_lower_bound", 100);
-    pubZoneUpperBound = nh.advertise<geometry_msgs::PoseArray>("/zone_upper_bound", 100);
     pubNavigationData = nh.advertise<wilson_ros::NavigationData>("/navigation_data", 100);
 }
 
 void ZoneGenerator::generateZones(const nav_msgs::GridCells &msg) {
     if (msg.cells.size() > 2) {
         unsigned int cellHeight = 1, cellWidth = 1;
-        GridReAssigner reAssigner(cellHeight, cellWidth);
-        std::vector<GridCell> reAssignedCells = reAssigner.reassignGrid(msg.cell_height, msg.cell_width, msg.cells);
 
-        std::vector<geometry_msgs::Point> relevantCellPoints;
-        unsigned long cellCount = reAssignedCells.size();
-        for (unsigned long i = 0; i < cellCount; i++) {
-            relevantCellPoints.push_back(reAssignedCells[i].getCenterOriginal());
-        }
+        std::vector<GridCell> measurementGridCells = createMeasurementCellGrid(cellHeight, cellWidth, msg);
+        std::vector<GridCell> zones = createZoneGrid(5, 2, cellHeight, cellWidth, measurementGridCells);
 
-        GridReAssigner zoneAssigner(5, 2);
-        std::vector<GridCell> zones = zoneAssigner.reassignGrid(cellHeight, cellWidth, relevantCellPoints);
+        prepareZoneNavigationData(zones);
+        finalizeNavigationData(zones, measurementGridCells);
+        ROS_INFO_STREAM("count zones: " << zones.size() << " - cells in first zone: "
+                                        << navigationData.zones[0].target_poses.size() << " / "
+                                        << navigationData.zones[0].center_poses.size());
+        publishMessages(msg.header);
+    }
+}
 
-        geometry_msgs::PoseArray centerPositions;
-        geometry_msgs::PoseArray bestMatchPositions;
-        geometry_msgs::PoseArray lowerBoundPositions;
-        geometry_msgs::PoseArray upperBoundPositions;
-        wilson_ros::NavigationData navigationDataMsg;
-        centerPositions.header = msg.header;
-        bestMatchPositions.header = msg.header;
-        lowerBoundPositions.header = msg.header;
-        upperBoundPositions.header = msg.header;
-        navigationDataMsg.header = msg.header;
-        for (int i = 0; i < zones.size(); i++) {
-            GridCell *zone = &zones[i];
+std::vector<GridCell>
+ZoneGenerator::createMeasurementCellGrid(unsigned int cellHeight, unsigned int cellWidth,
+                                         nav_msgs::GridCells msg) {
+    CellGridCreator cellGridCreator(cellHeight, cellWidth);
 
-            geometry_msgs::Pose centerPose;
-            centerPose.orientation.w = 1;
-            geometry_msgs::Pose bestMatchPose;
-            bestMatchPose.orientation.w = 1;
-            geometry_msgs::Pose lowerBoundPose;
-            lowerBoundPose.orientation.w = 1;
-            geometry_msgs::Pose upperBoundPose;
-            upperBoundPose.orientation.w = 1;
+    return cellGridCreator.reassignGrid(msg.cell_height, msg.cell_width, msg.cells);
+}
 
-            centerPose.position = zone->getCenterOriginal();
-            bestMatchPose.position = zone->getCenterBestMatch();
-            lowerBoundPose.position = zone->getLowerBound();
-            upperBoundPose.position = zone->getUpperBound();
+std::vector<GridCell> ZoneGenerator::createZoneGrid(unsigned int zoneHeight, unsigned int zoneWidth, double cellHeight,
+                                                    double cellWidth, std::vector<GridCell> cells) {
+    std::vector<geometry_msgs::Point> relevantCellPoints;
+    CellGridCreator zoneCreator(zoneHeight, zoneWidth);
 
-            centerPositions.poses.push_back(centerPose);
-            bestMatchPositions.poses.push_back(bestMatchPose);
-            lowerBoundPositions.poses.push_back(lowerBoundPose);
-            upperBoundPositions.poses.push_back(upperBoundPose);
+    unsigned long cellCount = cells.size();
+    for (unsigned long i = 0; i < cellCount; i++) {
+        GridCell *currentCell = &cells[i];
 
-            wilson_ros::Zone zoneMsg;
-            zoneMsg.center_pose.position = zone->getCenterOriginal();
-            zoneMsg.target_pose.position = zone->getCenterBestMatch(); //TODO: fix for reachable pose
-            navigationDataMsg.zones.push_back(zoneMsg);
-        }
-        pubZoneCenter.publish(centerPositions);
-        pubZoneBestMatch.publish(bestMatchPositions);
-        pubZoneLowerBound.publish(lowerBoundPositions);
-        pubZoneUpperBound.publish(upperBoundPositions);
+        relevantCellPoints.push_back(currentCell->getCenterOriginal());
 
-        double minX = zones[0].getLowerBound().x;
-        double minY = zones[0].getLowerBound().y;
-        unsigned long measurementCount = reAssignedCells.size();
-        for (unsigned long i = 0; i < measurementCount; i++) {
-            GridCell *cell = &reAssignedCells[i];
-            geometry_msgs::Point cellCenter = cell->getCenterOriginal();
+        geometry_msgs::Pose cellBestMatchPose = createPose(currentCell->getCenterBestMatch());
+        zoneBestMatch.poses.push_back(cellBestMatchPose);
+    }
 
-            //find matching zonezone->getCenterOriginal()
-            for (unsigned long j = 0; j < zones.size(); j++) {
-                GridCell *zone = &zones[j];
+    return zoneCreator.reassignGrid(cellHeight, cellWidth, relevantCellPoints);
+}
 
-                if (zone->cellContains(cellCenter)) {
-                    geometry_msgs::Pose target_pose;
-                    target_pose.orientation.w = 1;
-                    target_pose.position = cell->getCenterBestMatch();
-                    navigationDataMsg.zones[j].target_poses.push_back(target_pose);
+void ZoneGenerator::prepareZoneNavigationData(std::vector<GridCell> zones) {
+    for (int i = 0; i < zones.size(); i++) {
+        GridCell *zone = &zones[i];
 
-                    geometry_msgs::Pose center_pose;
-                    center_pose.orientation.w = 1;
-                    center_pose.position = cellCenter;;
-                    navigationDataMsg.zones[j].center_poses.push_back(center_pose);
-                    break;
-                }
+        //TODO: fix for reachable pose
+        geometry_msgs::Pose zoneBestMatchPose = createPose(zone->getCenterBestMatch());
+        zoneBestMatch.poses.push_back(zoneBestMatchPose);
+
+        // prepare zone-data
+        wilson_ros::Zone zoneMsg;
+        zoneMsg.target_pose.position = zoneBestMatchPose;
+        zoneMsg.center_pose.position = zone->getCenterOriginal();
+        navigationData.zones.push_back(zoneMsg);
+    }
+}
+
+void ZoneGenerator::finalizeNavigationData(std::vector<GridCell> zones, std::vector<GridCell> measurementGridCells) {
+    double minX = zones[0].getLowerBound().x;
+    double minY = zones[0].getLowerBound().y;
+
+    unsigned long measurementCount = measurementGridCells.size();
+    for (unsigned long i = 0; i < measurementCount; i++) {
+        GridCell *measurementCell = &measurementGridCells[i];
+        geometry_msgs::Point cellCenter = measurementCell->getCenterOriginal();
+
+        //find matching zonezone->getCenterOriginal()
+        for (unsigned long zoneIndex = 0; zoneIndex < zones.size(); zoneIndex++) {
+            GridCell *zone = &zones[zoneIndex];
+
+            if (zone->cellContains(cellCenter)) {
+                populateNavigationData(zoneIndex, cellCenter, measurementCell->getCenterBestMatch());
+                break;
             }
         }
-        ROS_INFO_STREAM("count zones: " << zones.size() << " - cells in first zone: "
-                                        << navigationDataMsg.zones[0].target_poses.size() << " / "
-                                        << navigationDataMsg.zones[0].center_poses.size());
-        pubNavigationData.publish(navigationDataMsg);
     }
+}
+
+void
+ZoneGenerator::populateNavigationData(unsigned long zone, geometry_msgs::Point cellCenter, geometry_msgs::Point cellBestMatch) {
+    geometry_msgs::Pose target_pose = createPose(cellBestMatch);
+    navigationData.zones[zone].target_poses.push_back(target_pose);
+
+    geometry_msgs::Pose center_pose = createPose(cellCenter);
+    navigationData.zones[zone].center_poses.push_back(center_pose);
+}
+
+geometry_msgs::Pose ZoneGenerator::createPose(geometry_msgs::Point p) {
+    geometry_msgs::Pose pose;
+
+    pose.orientation.w = 1;
+    pose.position = p;
+
+    return pose;
+}
+
+void ZoneGenerator::publishMessages(std_msgs::Header msgHeader) {
+    cellBestMatch.header = zoneBestMatch.header = navigationData.header = msgHeader;
+
+    pubCellBestMatch.publish(cellBestMatch);
+    cellBestMatch.poses.clear();
+
+    pubZoneBestMatch.publish(zoneBestMatch);
+    zoneBestMatch.poses.clear();
+
+    pubNavigationData.publish(navigationData);
+    navigationData.zones.clear();
 }
