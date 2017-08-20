@@ -16,7 +16,7 @@ ZoneGenerator::ZoneGenerator() {
 
 void ZoneGenerator::generateZones(const nav_msgs::GridCells &msg) {
     if (msg.cells.size() > 2) {
-        unsigned int cellHeight = 1, cellWidth = 1;
+        double cellHeight = 0.95, cellWidth = 0.95;
 
         std::vector<GridCell> measurementGridCells = createMeasurementCellGrid(cellHeight, cellWidth, msg);
         std::vector<GridCell> zones = createZoneGrid(4.75, 1.9, cellHeight, cellWidth, measurementGridCells);
