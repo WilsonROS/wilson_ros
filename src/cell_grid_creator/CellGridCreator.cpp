@@ -4,7 +4,7 @@
 
 #include "wilson_ros/cell_grid_creator/CellGridCreator.hpp"
 
-CellGridCreator::CellGridCreator(unsigned int cellHeight, unsigned int cellWidth) {
+CellGridCreator::CellGridCreator(double cellHeight, double cellWidth) {
     this->cellHeight = cellHeight;
     this->cellWidth = cellWidth;
 }

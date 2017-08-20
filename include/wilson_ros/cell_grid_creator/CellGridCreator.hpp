@@ -12,14 +12,14 @@
 
 class CellGridCreator {
 public:
-    CellGridCreator(unsigned int cellHeight, unsigned int cellWidth);
+    CellGridCreator(double cellHeight, double cellWidth);
 
     std::vector<GridCell> createGrid(double originCellHeight, double originCellWith,
                                      std::vector<geometry_msgs::Point> cells);
 
 private:
-    unsigned int cellHeight;
-    unsigned int cellWidth;
+    double cellHeight;
+    double cellWidth;
 };
 
 
