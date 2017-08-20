@@ -3,7 +3,7 @@
 //
 
 #include <wilson_ros/grid_reassigner/GridReAssigner.hpp>
-#include "wilson_ros/ZoneGenRunner.hpp"
+#include "wilson_ros/zone_generator/ZoneGenRunner.hpp"
 
 ZoneGenRunner::ZoneGenRunner() : gen(42, 42) {
     sub = nh.subscribe("/cells", 10, &ZoneGenRunner::callbackGrid, this);

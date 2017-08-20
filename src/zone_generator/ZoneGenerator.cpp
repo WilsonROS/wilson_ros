@@ -2,7 +2,7 @@
 // Created by aluquot on 14.08.17.
 //
 
-#include "wilson_ros/ZoneGenerator.hpp"
+#include "wilson_ros/zone_generator/ZoneGenerator.hpp"
 
 void ZoneGenerator::generateZones(const nav_msgs::GridCells &msg) {
     /*ROS_INFO_STREAM("width: " << msg.cell_width

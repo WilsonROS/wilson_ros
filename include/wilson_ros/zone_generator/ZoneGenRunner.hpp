@@ -7,7 +7,7 @@
 
 #include <ros/ros.h>
 #include <nav_msgs/GridCells.h>
-#include "ZoneGenerator.hpp"
+#include "wilson_ros/zone_generator/ZoneGenerator.hpp"
 #include <geometry_msgs/PointStamped.h>
 #include <geometry_msgs/PoseArray.h>
 #include <visualization_msgs/MarkerArray.h>
