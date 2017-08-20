@@ -11,7 +11,6 @@ CellGridCreator::CellGridCreator(double cellHeight, double cellWidth) {
 
 std::vector<GridCell> CellGridCreator::createGrid(double originCellHeight, double originCellWith,
                                                   std::vector <geometry_msgs::Point> cells) {
-    // early return if cell-sizes do not match
     double quotientHeight = cellHeight / originCellHeight;
     double quotientWidth = cellWidth / originCellWith;
     if (cellHeight != (quotientHeight * originCellHeight) || cellWidth != (quotientWidth * originCellWith)) {
@@ -20,22 +19,33 @@ std::vector<GridCell> CellGridCreator::createGrid(double originCellHeight, doubl
         throw std::invalid_argument("Cell-size do not match");
     }
 
-    // find bounds
-    double minX = 0, minY = 0, maxX = 0, maxY = 0;
+    minX = 0;
+    minY = 0;
+    maxX = 0;
+    maxY = 0;
+    findBounds(&cells);
 
-    unsigned long count = cells.size();
+    std::vector<std::vector<GridCell>> newCells = prepareGrid(originCellHeight, originCellWith);
+
+    activateGridCells(&newCells, &cells);
+
+    return extractActivatedCells(&newCells);
+}
+
+void CellGridCreator::findBounds(std::vector<geometry_msgs::Point> *cells) {
+    unsigned long count = cells->size();
     for (unsigned long i = 0; i < count; i++) {
-        maxX = std::max(cells[i].x, maxX);
-        maxY = std::max(cells[i].y, maxY);
+        maxX = std::max(cells->at(i).x, maxX);
+        maxY = std::max(cells->at(i).y, maxY);
 
-        minX = std::min(cells[i].x, minX);
-        minY = std::min(cells[i].y, minY);
+        minX = std::min(cells->at(i).x, minX);
+        minY = std::min(cells->at(i).y, minY);
     }
-    ROS_INFO_STREAM("Bounds found! lower: (" << minX << ", " << minY << "), upper: (" << maxX << ", " << maxY << ")");
 
-    // prepare grid
-    int gridCellsX = static_cast<int>((maxX - minX) / this->cellWidth) + 1;
-    int gridCellsY = static_cast<int>((maxY - minY) / this->cellHeight) + 1;
+    ROS_INFO_STREAM("Bounds found! lower: (" << minX << ", " << minY << "), upper: (" << maxX << ", " << maxY << ")");
+}
+
+std::vector<std::vector<GridCell>> CellGridCreator::prepareGrid(double originCellHeight, double originCellWith) {
     double paddingWidth = originCellWith / 2.;
     double paddingHeight = originCellHeight / 2.;
     double offsetX = cellWidth / 2. - paddingWidth;
@@ -43,6 +53,8 @@ std::vector<GridCell> CellGridCreator::createGrid(double originCellHeight, doubl
     ROS_INFO_STREAM(
             "gridCellsX: " << gridCellsY << " - gridCellsY:" << gridCellsY << " - offsetX: " << offsetX
                            << " - offsetY: " << offsetY);
+    gridCellsX = static_cast<int>((maxX - minX) / this->cellWidth) + 1;
+    gridCellsY = static_cast<int>((maxY - minY) / this->cellHeight) + 1;
 
     std::vector<std::vector<GridCell>> newCells;
     for (int i = 0; i < gridCellsX; i++) {
@@ -68,31 +80,36 @@ std::vector<GridCell> CellGridCreator::createGrid(double originCellHeight, doubl
     }
 
     ROS_INFO_STREAM("Grid-Cells: " << (gridCellsX * gridCellsY));
-    // activate grid cells
-    unsigned long measurementCount = cells.size();
-    for (unsigned long i = 0; i < measurementCount; i++) {
-        geometry_msgs::Point *p = &cells[i];
+    return newCells;
+}
 
-        //find matching new Cell
+void CellGridCreator::activateGridCells(std::vector<std::vector<GridCell>> *grid,
+                                        std::vector<geometry_msgs::Point> *originCells) {
+    unsigned long measurementCount = originCells->size();
+    for (unsigned long i = 0; i < measurementCount; i++) {
+        geometry_msgs::Point *p = &originCells->at(i);
+
+        // rounding down will get the expected index
         double diffX = p->x - minX;
         int indexX = static_cast<int>(floor(diffX / cellWidth));
         double diffY = p->y - minY;
         int indexY = static_cast<int>(floor(diffY / cellHeight));
 
-        //activate cell with point
-        newCells[indexX][indexY].activateWith(*p);
+        grid->at(indexX)[indexY].activateWith(*p);
     }
+}
 
-    // extract activated cells
+std::vector<GridCell> CellGridCreator::extractActivatedCells(std::vector<std::vector<GridCell>> *grid) {
     std::vector<GridCell> activatedCells;
     for (int i = 0; i < gridCellsX; i++) {
         for (int j = 0; j < gridCellsY; j++) {
-            GridCell *currentCell = &newCells[i][j];
+            GridCell *currentCell = &grid->at(i)[j];
             if (currentCell->isActivated()) {
                 activatedCells.push_back(*currentCell);
             }
         }
     }
+
     ROS_INFO_STREAM("Activated-Cells: " << activatedCells.size());
     return activatedCells;
 }
