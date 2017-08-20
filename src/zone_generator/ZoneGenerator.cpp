@@ -48,7 +48,7 @@ std::vector<GridCell> ZoneGenerator::createZoneGrid(unsigned int zoneHeight, uns
         relevantCellPoints.push_back(currentCell->getCenterOriginal());
 
         geometry_msgs::Pose cellBestMatchPose = createPose(currentCell->getCenterBestMatch());
-        zoneBestMatch.poses.push_back(cellBestMatchPose);
+        cellBestMatch.poses.push_back(cellBestMatchPose);
     }
 
     return zoneCreator.createGrid(cellHeight, cellWidth, relevantCellPoints);
