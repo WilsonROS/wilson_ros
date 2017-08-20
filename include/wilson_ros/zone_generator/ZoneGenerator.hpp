@@ -35,10 +35,10 @@ private:
     void generateZones(const nav_msgs::GridCells &msg);
 
     std::vector<GridCell>
-    createMeasurementCellGrid(unsigned int cellHeight, unsigned int cellWidth, nav_msgs::GridCells msg);
+    createMeasurementCellGrid(double cellHeight, double cellWidth, nav_msgs::GridCells msg);
 
     std::vector<GridCell>
-    createZoneGrid(unsigned int zoneHeight, unsigned int zoneWidth, double cellHeight,
+    createZoneGrid(double zoneHeight, double zoneWidth, double cellHeight,
                    double cellWidth, std::vector<GridCell> cells);
 
     void prepareZoneNavigationData(std::vector<GridCell> zones);
