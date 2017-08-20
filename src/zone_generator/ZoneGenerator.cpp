@@ -7,8 +7,10 @@
 
 ZoneGenerator::ZoneGenerator() {
     sub = nh.subscribe("/cells", 10, &ZoneGenerator::generateZones, this);
-    pubCellBestMatch = nh.advertise<geometry_msgs::PoseArray>("/cell_best_match", 100);
-    pubZoneBestMatch = nh.advertise<geometry_msgs::PoseArray>("/zone_best_match", 100);
+    pubCellBestMatch = nh.advertise<geometry_msgs::PoseArray>("/navigation_cell_best_match", 100);
+    pubZoneBestMatch = nh.advertise<geometry_msgs::PoseArray>("/navigation_zone_best_match", 100);
+    pubCellGrid = nh.advertise<nav_msgs::GridCells>("/navigation_cell_grid", 100);
+    pubZoneGrid = nh.advertise<nav_msgs::GridCells>("/navigation_zone_grid", 100);
     pubNavigationData = nh.advertise<wilson_ros::NavigationData>("/navigation_data", 100);
 }
 
@@ -32,6 +34,8 @@ std::vector<GridCell>
 ZoneGenerator::createMeasurementCellGrid(unsigned int cellHeight, unsigned int cellWidth,
                                          nav_msgs::GridCells msg) {
     CellGridCreator cellGridCreator(cellHeight, cellWidth);
+    cellGrid.cell_height = cellHeight;
+    cellGrid.cell_width = cellWidth;
 
     return cellGridCreator.createGrid(msg.cell_height, msg.cell_width, msg.cells);
 }
@@ -40,12 +44,16 @@ std::vector<GridCell> ZoneGenerator::createZoneGrid(unsigned int zoneHeight, uns
                                                     double cellWidth, std::vector<GridCell> cells) {
     std::vector<geometry_msgs::Point> relevantCellPoints;
     CellGridCreator zoneCreator(zoneHeight, zoneWidth);
+    zoneGrid.cell_height = zoneHeight;
+    zoneGrid.cell_width = zoneWidth;
 
     unsigned long cellCount = cells.size();
     for (unsigned long i = 0; i < cellCount; i++) {
         GridCell *currentCell = &cells[i];
 
-        relevantCellPoints.push_back(currentCell->getCenterOriginal());
+        geometry_msgs::Point cellCenterPoint = currentCell->getCenterOriginal();
+        relevantCellPoints.push_back(cellCenterPoint);
+        cellGrid.cells.push_back(cellCenterPoint);
 
         geometry_msgs::Pose cellBestMatchPose = createPose(currentCell->getCenterBestMatch());
         cellBestMatch.poses.push_back(cellBestMatchPose);
@@ -58,14 +66,17 @@ void ZoneGenerator::prepareZoneNavigationData(std::vector<GridCell> zones) {
     for (int i = 0; i < zones.size(); i++) {
         GridCell *zone = &zones[i];
 
-        //TODO: fix for reachable pose
+        //TODO: fix for reachable pose / point
         geometry_msgs::Pose zoneBestMatchPose = createPose(zone->getCenterBestMatch());
         zoneBestMatch.poses.push_back(zoneBestMatchPose);
+
+        geometry_msgs::Point zoneCenterPoint = zone->getCenterOriginal();
+        zoneGrid.cells.push_back(zoneCenterPoint);
 
         // prepare zone-data
         wilson_ros::Zone zoneMsg;
         zoneMsg.target_pose = zoneBestMatchPose;
-        zoneMsg.center_pose = createPose(zone->getCenterOriginal());
+        zoneMsg.center_pose = createPose(zoneCenterPoint);
         navigationData.zones.push_back(zoneMsg);
     }
 }
@@ -108,6 +119,7 @@ geometry_msgs::Pose ZoneGenerator::createPose(geometry_msgs::Point p) {
 
 void ZoneGenerator::publishMessages(std_msgs::Header msgHeader) {
     cellBestMatch.header = zoneBestMatch.header = navigationData.header = msgHeader;
+    cellGrid.header = zoneGrid.header = msgHeader;
 
     pubCellBestMatch.publish(cellBestMatch);
     cellBestMatch.poses.clear();
@@ -117,4 +129,10 @@ void ZoneGenerator::publishMessages(std_msgs::Header msgHeader) {
 
     pubNavigationData.publish(navigationData);
     navigationData.zones.clear();
+
+    pubCellGrid.publish(cellGrid);
+    cellGrid.cells.clear();
+
+    pubZoneGrid.publish(zoneGrid);
+    zoneGrid.cells.clear();
 }

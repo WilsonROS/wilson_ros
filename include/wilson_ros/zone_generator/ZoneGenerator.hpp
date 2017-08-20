@@ -21,11 +21,15 @@ private:
     ros::NodeHandle nh;
     ros::Publisher pubCellBestMatch;
     ros::Publisher pubZoneBestMatch;
+    ros::Publisher pubCellGrid;
+    ros::Publisher pubZoneGrid;
     ros::Publisher pubNavigationData;
     ros::Subscriber sub;
 
     geometry_msgs::PoseArray cellBestMatch;
     geometry_msgs::PoseArray zoneBestMatch;
+    nav_msgs::GridCells cellGrid;
+    nav_msgs::GridCells zoneGrid;
     wilson_ros::NavigationData navigationData;
 
     void generateZones(const nav_msgs::GridCells &msg);
