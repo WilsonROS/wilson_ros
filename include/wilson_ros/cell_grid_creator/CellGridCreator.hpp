@@ -7,7 +7,8 @@
 
 #include <ros/ros.h>
 #include <geometry_msgs/Point.h>
-#include "GridCell.hpp"
+
+#include <wilson_ros/cell_grid_creator/GridCell.hpp>
 
 class CellGridCreator {
 public:

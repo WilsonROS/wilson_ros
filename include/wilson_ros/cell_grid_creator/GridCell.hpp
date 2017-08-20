@@ -5,7 +5,6 @@
 #ifndef PROJECT_GRIDCELL_HPP
 #define PROJECT_GRIDCELL_HPP
 
-
 #include <geometry_msgs/Point.h>
 
 class GridCell {

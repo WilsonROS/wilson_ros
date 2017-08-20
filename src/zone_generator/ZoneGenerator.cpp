@@ -76,10 +76,10 @@ void ZoneGenerator::finalizeNavigationData(std::vector<GridCell> zones, std::vec
         GridCell *measurementCell = &measurementGridCells[i];
         geometry_msgs::Point cellCenter = measurementCell->getCenterOriginal();
 
-        //find matching zonezone->getCenterOriginal()
         for (unsigned long zoneIndex = 0; zoneIndex < zones.size(); zoneIndex++) {
             GridCell *zone = &zones[zoneIndex];
 
+            // cell only belongs to one zone at a time
             if (zone->cellContains(cellCenter)) {
                 populateNavigationData(zoneIndex, cellCenter, measurementCell->getCenterBestMatch());
                 break;

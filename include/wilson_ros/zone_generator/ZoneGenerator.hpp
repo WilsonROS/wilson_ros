@@ -7,11 +7,10 @@
 
 #include <ros/ros.h>
 #include <nav_msgs/GridCells.h>
-#include "wilson_ros/zone_generator/ZoneGenerator.hpp"
-#include <geometry_msgs/PointStamped.h>
 #include <geometry_msgs/PoseArray.h>
-#include <visualization_msgs/MarkerArray.h>
+
 #include <wilson_ros/NavigationData.h>
+#include <wilson_ros/zone_generator/ZoneGenerator.hpp>
 #include <wilson_ros/cell_grid_creator/GridCell.hpp>
 
 class ZoneGenerator {
