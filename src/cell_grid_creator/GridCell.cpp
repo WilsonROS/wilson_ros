@@ -16,6 +16,7 @@ GridCell::GridCell(const geometry_msgs::Point &centerOriginal, double cellHeight
     this->centerBestMatch = centerOriginal;
     this->bestDistance = 0;
     this->activated = false;
+    this->activationCounter = 0;
     this->upperBound = geometry_msgs::Point();
     this->lowerBound = geometry_msgs::Point();
     this->neighbourTop = nullptr;
@@ -33,6 +34,7 @@ void GridCell::activateWith(geometry_msgs::Point p) {
     if (cellContains(p)) {
         double newDistance = hypot(this->centerOriginal.x - p.x, this->centerOriginal.y - p.y);
 
+        this->activationCounter += 1;
         if (this->activated && newDistance >= this->bestDistance) {
             return;
         }
@@ -57,6 +59,10 @@ void GridCell::setNeighbours(GridCell *top, GridCell *right) {
 
 bool GridCell::isActivated() const {
     return activated;
+}
+
+int GridCell::getActivationCounter() const {
+    return activationCounter;
 }
 
 const geometry_msgs::Point &GridCell::getCenterOriginal() const {

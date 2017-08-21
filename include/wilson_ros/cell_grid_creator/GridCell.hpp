@@ -71,6 +71,14 @@ public:
     bool isActivated() const;
 
     /**
+     * \brief Gives the amount of activation-atempts for this cell.
+     *
+     * @return
+     *  Activation counter
+     */
+    int getActivationCounter() const;
+
+    /**
      * \brief Denotes whether the given point is contained in this cell.
      *
      * @param p
@@ -184,6 +192,8 @@ private:
     double cellWidth; /// Width of the grid cell
 
     bool activated; /// Activation state of the cell
+
+    int activationCounter; /// Count how many times a cell has been activated
 
     /**
      * The position at the center of the cell

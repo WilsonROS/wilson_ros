@@ -37,7 +37,23 @@ ZoneGenerator::createMeasurementCellGrid(double cellHeight, double cellWidth,
     cellGrid.cell_height = cellHeight;
     cellGrid.cell_width = cellWidth;
 
-    return cellGridCreator.createGrid(msg.cell_height, msg.cell_width, msg.cells);
+
+    std::vector<GridCell> originalCellGrid = cellGridCreator.createGrid(msg.cell_height, msg.cell_width, msg.cells);
+    std::vector<GridCell> clearedGrid;
+    int maximumSmallCellCount = static_cast<int>((cellHeight / msg.cell_height) * (cellWidth / msg.cell_width));
+    int minimumThreshold = static_cast<int>(maximumSmallCellCount * 0.8);
+    ROS_INFO_STREAM("maximumCellCount: " << maximumSmallCellCount << " - minimumThreshold: " << minimumThreshold);
+
+    unsigned long gridCellCount = originalCellGrid.size();
+    for (int j = 0; j < gridCellCount; ++j) {
+        GridCell *currentCell = &originalCellGrid[j];
+        if (currentCell->getActivationCounter() >= minimumThreshold) {
+            clearedGrid.push_back(*currentCell);
+            ROS_INFO_STREAM("Activation-count: " << currentCell->getActivationCounter());
+        }
+    }
+
+    return clearedGrid;
 }
 
 std::vector<GridCell> ZoneGenerator::createZoneGrid(double zoneHeight, double zoneWidth, double cellHeight,
