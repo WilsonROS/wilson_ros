@@ -1,5 +1,5 @@
 <launch>
-    <node pkg="topic_tools" type="relay" name="cmd_vel_relay" args="/navigation_velocity_smother/smooth_cmd_vel /mobile_base/commands/velocity"/>
+    <node pkg="topic_tools" type="relay" name="cmd_vel_relay" args="/navigation_velocity_smoother/smooth_cmd_vel /mobile_base/commands/velocity"/>
     <node name="map_server" pkg="map_server" type="map_server" args="/home/turtlebot/mymap2.yaml" respawn="true">
         <!-- General map parameters-->
         <param name="frame_id" value="map" />
