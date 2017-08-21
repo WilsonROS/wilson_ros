@@ -1,0 +1,6 @@
+<launch>
+    <include file="$(find wilson_ros)/launch/boot_minimal.launch"/>
+    <include file="$(find wilson_ros)/launch/coverage.launch"/>
+    <include file="$(find wilson_ros)/launch/zone_generator.launch"/>
+    <include file="$(find wilson_ros)/launch/planner.launch"/>
+</launch>
