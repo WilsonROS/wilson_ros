@@ -156,6 +156,7 @@ def main_loop():
     rate = rospy.Rate(1)
     while not rospy.is_shutdown():
         rate.sleep()
+        cov.send()
 
 
 if __name__ == '__main__':
