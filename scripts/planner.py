@@ -112,11 +112,11 @@ class GotWaypoint(smach.State):
             self.succeeded = False
             return 'move_to_waypoint'
 
-class Planer:
+class Planner:
     zones = collections.deque([])
 
     def __init__(self):
-        rospy.init_node('wilson_ros_planer')
+        rospy.init_node('wilson_ros_planner')
 
         self.client = SimpleActionClient('move_base', MoveBaseAction)
         
@@ -156,7 +156,7 @@ class Planer:
         
 # main
 def main():
-    Planer();
+    Planner();
 
 if __name__ == '__main__':
     main()
