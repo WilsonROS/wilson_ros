@@ -28,16 +28,16 @@ int main(int argc, char **argv) {
 
     KeyHandler kh(400,400);
     // Sets the name shown in the titlebar and the taskbar
-    kh.setWindowTitle("KeyHandler Demo in ROS environment");
+    kh.setWindowTitle("WilsonROS Controloller");
     float speed = 1.0;
     while(ros::ok()) {
         bool dir = false;
         bool lin = false;
         kh.process();
-        if(kh.isHeld('1')) speed = 1;
+        /*if(kh.isHeld('1')) speed = 1;
         if(kh.isHeld('2')) speed = 2;
         if(kh.isHeld('3')) speed = 3;
-        if(kh.isHeld('4')) speed = 4;
+        if(kh.isHeld('4')) speed = 4;*/
         if (kh.isHeld('w') || kh.isHeld(KEY_Up)){
             robot.SetLinearSpeed(0.05 * speed, 0, 0);
             lin = true;
