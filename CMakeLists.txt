@@ -17,7 +17,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   std_msgs
   tf
-  rqt_smach
+  #rqt_smach
   smach_viewer
   message_generation
 )
