@@ -1,0 +1,3 @@
+<launch>
+  <node pkg="rviz" type="rviz" name="rviz" args="--display-config $(find wilson_ros)/rviz/navigation.rviz"/>
+</launch>
