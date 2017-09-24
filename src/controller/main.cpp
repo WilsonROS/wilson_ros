@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
 
     KeyHandler kh(400,400);
     // Sets the name shown in the titlebar and the taskbar
-    kh.setWindowTitle("WilsonROS Controloller");
+    kh.setWindowTitle("WilsonROS Controller");
     float speed = 1.0;
     while(ros::ok()) {
         bool dir = false;
