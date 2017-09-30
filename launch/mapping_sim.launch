@@ -1,0 +1,4 @@
+<launch>
+    <remap from="/mobile_base/commands/velocity" to="/cmd_vel"/>
+    <include file ="$(find wilson_ros)/launch/slam_gmapping_pr2.launch" />
+</launch>
