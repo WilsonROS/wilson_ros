@@ -12,7 +12,7 @@ This project has a long history and wouldn't exist without following people:
 
 * [Arne Hetzenegger](https://github.com/Aluquot)
 * [Firas Zaidan](https://github.com/zaidan)
-* [Jens-Rene Giesen](https://github.com/eoiser)
+* [Jens-Rene Giesen](https://github.com/jerengie)
 * [Tobias Cloosters](https://github.com/Tcc100)
 * [Trutz Beckerpape](https://github.com/trubeck)
 * [Yavuz Uslubas](https://github.com/YavuzU)
